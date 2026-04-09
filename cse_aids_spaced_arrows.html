@@ -1,0 +1,505 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{background:#f8f9fc;border-radius:12px;padding:20px 16px 24px;font-family:var(--font-sans,sans-serif);border:1px solid #e2e5ef;overflow-x:auto}
+.year-headers{display:grid;grid-template-columns:repeat(6,1fr);gap:28px;margin-bottom:4px}
+.year-band{border-radius:6px;text-align:center;padding:6px 0;font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.y1{background:#eef0ff;color:#5046c8;grid-column:span 2}
+.y2{background:#e6faf3;color:#0a7c5a;grid-column:span 2}
+.y3{background:#f5eeff;color:#7c3aed;grid-column:span 2}
+.sem-headers{display:grid;grid-template-columns:repeat(6,1fr);gap:28px;margin-bottom:10px}
+.sem-h{text-align:center;font-size:10px;color:#8a93b0;font-weight:500;padding:3px 0}
+.diagram{position:relative}
+.cols{display:grid;grid-template-columns:repeat(6,1fr);gap:28px;position:relative;z-index:2}
+.col{display:flex;flex-direction:column;gap:14px}
+.node{border-radius:8px;padding:7px 8px;font-size:10.5px;line-height:1.35;text-align:center;cursor:pointer;transition:opacity .18s,transform .18s,box-shadow .18s;border:1.5px solid transparent;position:relative;z-index:2;user-select:none}
+.node.dimmed{opacity:.1}
+.node.lit{opacity:1;transform:scale(1.04);box-shadow:0 0 0 2.5px var(--hc,#b0b5cc),0 4px 12px rgba(0,0,0,.12);border-color:var(--hc,#dde0ec);color:var(--hc,#555e7a);background:color-mix(in srgb,var(--hc,#f0f1f6) 12%,white)}
+.elabel{font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:3px 0 1px;color:#9ca3af}
+svg.arrows{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:visible}
+.arr-path{fill:none;stroke-width:1.8;transition:opacity .18s,stroke-width .18s;opacity:.4}
+.arr-path.dimmed{opacity:.04}
+.arr-path.lit{opacity:1;stroke-width:2.6}
+.legend{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.leg{display:flex;align-items:center;gap:5px;font-size:10.5px;cursor:pointer;padding:4px 10px;border-radius:20px;border:1px solid transparent;transition:border-color .15s,background .15s;color:#555e7a}
+.leg:hover,.leg.active{border-color:var(--lc);background:rgba(0,0,0,.04)}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.builder-bar{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 12px;background:#f0f1f6;border-radius:8px;flex-wrap:wrap}
+.btn-connect{padding:6px 14px;border-radius:6px;border:1.5px solid #dde0ec;background:#fff;cursor:pointer;font-size:11px;font-weight:600;color:#555e7a;transition:all .15s}
+.btn-connect.active{background:#5046c8;border-color:#5046c8;color:#fff}
+.btn-small{padding:5px 12px;border-radius:6px;border:1.5px solid #dde0ec;background:#fff;cursor:pointer;font-size:11px;color:#555e7a;transition:all .15s}
+.btn-small:hover{border-color:#b0b5cc;background:#f8f9fc}
+.color-label{font-size:11px;color:#555e7a;display:flex;align-items:center;gap:6px;font-weight:500}
+.color-label input[type=color]{width:36px;height:28px;border:1.5px solid #dde0ec;border-radius:4px;cursor:pointer;padding:1px;background:none}
+#diagram.connect-mode .node{cursor:crosshair}
+.node.source-selected{outline:3px solid #f59e0b!important;outline-offset:2px;opacity:1!important;transform:scale(1.04)}
+.conn-panel{margin-top:10px}
+.conn-panel-title{font-size:10px;font-weight:600;color:#8a93b0;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.conn-list{display:flex;flex-direction:column;gap:4px;max-height:350px;overflow-y:auto}
+.conn-item{display:flex;align-items:center;gap:7px;padding:5px 8px;background:#f8f9fc;border-radius:6px;border:1px solid #e2e5ef}
+.conn-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.conn-text{font-size:10.5px;color:#555e7a;flex:1}
+.conn-del{border:none;background:none;color:#c0c5d8;cursor:pointer;font-size:15px;line-height:1;padding:0 2px;transition:color .12s}
+.conn-del:hover{color:#e11d48}
+.conn-empty{font-size:10.5px;color:#b0b5cc;padding:6px 4px;font-style:italic}
+.builder-hint{font-size:10px;color:#9ca3af;margin-left:4px}
+</style>
+
+<div class="wrap">
+  <div class="year-headers">
+    <div class="year-band y1">First year</div>
+    <div class="year-band y2">Second year</div>
+    <div class="year-band y3">Third year</div>
+  </div>
+  <div class="sem-headers">
+    <div class="sem-h">I Sem</div><div class="sem-h">II Sem</div><div class="sem-h">III Sem</div>
+    <div class="sem-h">IV Sem</div><div class="sem-h">V Sem</div><div class="sem-h">VI Sem</div>
+  </div>
+  <div class="diagram" id="diagram">
+    <svg class="arrows" id="svg-arrows"><defs id="svg-defs"></defs></svg>
+    <div class="cols" id="cols"></div>
+  </div>
+  <div class="builder-bar">
+    <button class="btn-connect" id="btn-connect">Connect Mode: OFF</button>
+    <label class="color-label">Arrow color <input type="color" id="color-pick" value="#000000"></label>
+    <button class="btn-small" id="btn-undo">↩ Undo last</button>
+    <button class="btn-small" id="btn-clear">⊘ Clear all</button>
+    <span class="builder-hint" id="builder-hint"></span>
+  </div>
+  <div class="conn-panel">
+    <div class="conn-panel-title">Connections (<span id="conn-count">0</span>)</div>
+    <div class="conn-list" id="conn-list"><div class="conn-empty">No connections yet. Enable Connect Mode to start.</div></div>
+  </div>
+</div>
+
+<script>
+/* ── data ── */
+const CHAINS=[
+  {id:'math',  name:'Mathematics',           color:'#5046c8'},
+  {id:'prog',  name:'Programming',           color:'#0a7c5a'},
+  {id:'infra', name:'Systems & infra',       color:'#0284c7'},
+  {id:'data',  name:'Data & databases',      color:'#c2500a'},
+  {id:'web',   name:'Web & design',          color:'#be185d'},
+  {id:'ml',    name:'ML & AI',               color:'#a16207'},
+  {id:'ds',    name:'Data science pipeline', color:'#6d28d9'},
+  {id:'soft',  name:'Software engineering',  color:'#b91c1c'},
+  {id:'prof',  name:'Professional dev',      color:'#065f46'},
+];
+const CM={};
+CHAINS.forEach(c=>CM[c.id]=c);
+
+const SUBS=[
+  {s:0,label:'Basic Mathematics',chain:'math'},
+  {s:0,label:'Basic Physics',chain:'infra'},
+  {s:0,label:'Essentials of Computer',chain:'prog'},
+  {s:0,label:'Yoga and Meditation',chain:null},
+  {s:0,label:'Graphics for Engineers',chain:null},
+  {s:0,label:'Web Page Designing',chain:'web'},
+  {s:0,label:'Computer Workshop Practices',chain:null},
+  {s:0,label:'Linux Basics',chain:null},
+  {s:0,label:'Social Leadership Dev Programme',chain:'prof'},
+  {s:1,label:'Applied Mathematics',chain:'math'},
+  {s:1,label:'Basic Electrical & Electronics Eng',chain:'infra'},
+  {s:1,label:'Programming in C',chain:'prog'},
+  {s:1,label:'Communicative Competence',chain:'prof'},
+  {s:1,label:'Data Comm & Computer Networks',chain:'data'},
+  {s:1,label:'Social and Life Skills',chain:'prof'},
+  {s:1,label:'Environmental Education & Sustainability',chain:null},
+  {s:1,label:'Sports',chain:null},
+  {s:2,label:'Database Management System',chain:'data'},
+  {s:2,label:'Digital Techniques & Microprocessors',chain:'infra'},
+  {s:2,label:'Data Structures using Python',chain:'prog'},
+  {s:2,label:'Statistical Modelling for ML',chain:'ml'},
+  {s:2,label:'Data Storytelling & Visualization',chain:'ds'},
+  {s:2,label:'Essence of Indian Constitution',chain:null},
+  {s:2,label:'Internet of Things',chain:null},
+  {s:3,label:'UI/UX Design',chain:'web'},
+  {s:3,label:'Java Programming',chain:'prog'},
+  {s:3,label:'Operating System',chain:'infra'},
+  {s:3,label:'Maths for Machine Learning',chain:'math'},
+  {s:3,label:'AI & ML Algorithms',chain:'ml'},
+  {s:3,label:'Natural Language Processing',chain:'ml',elective:'Elective 1'},
+  {s:3,label:'Advanced Database Management',chain:'data'},
+  {s:3,label:'Data Warehousing & Data Mining',chain:'ds'},
+  {s:3,label:'Discrete Math & Graph Theory',chain:null},
+  {s:3,label:'Co-Creation',chain:null},
+  {s:3,label:'Foundation of Peace',chain:'prof'},
+  {s:4,label:'Capstone Project',chain:'soft'},
+  {s:4,label:'Software Engineering',chain:'soft'},
+  {s:4,label:'Cloud Computing for Data Science',chain:'infra'},
+  {s:4,label:'Mobile App Development',chain:'infra'},
+  {s:4,label:'Big Data Analytics',chain:'ds'},
+  {s:4,label:'Advanced Machine Learning',chain:'ml',elective:'Elective 2'},
+  {s:4,label:'Image Processing',chain:null,elective:'Elective 2'},
+  {s:4,label:'Business Intelligence',chain:null,elective:'Elective 2'},
+  {s:5,label:'Entrepreneurship & Startups',chain:'prof'},
+  {s:5,label:'Management',chain:null},
+  {s:5,label:'Internship',chain:null},
+  {s:5,label:'Project Seminar',chain:null},
+];
+
+const nodeEls={};
+
+/* ── manual connection state ── */
+let manualConnections=JSON.parse(localStorage.getItem('cse_connections')||'[]');
+let connectMode=false;
+let selectedSource=null;
+let lockedLabel=null;
+const createdMarkers={};
+
+function saveConnections(){
+  localStorage.setItem('cse_connections',JSON.stringify(manualConnections));
+}
+
+function getOrCreateMarker(color){
+  const id='ah-'+color.replace('#','');
+  if(createdMarkers[id])return id;
+  const defs=document.getElementById('svg-defs');
+  const marker=document.createElementNS('http://www.w3.org/2000/svg','marker');
+  marker.setAttribute('id',id);
+  marker.setAttribute('viewBox','0 0 10 10');
+  marker.setAttribute('refX','7');
+  marker.setAttribute('refY','5');
+  marker.setAttribute('markerWidth','6');
+  marker.setAttribute('markerHeight','6');
+  marker.setAttribute('orient','auto-start-reverse');
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d','M2 2L8 5L2 8');
+  p.setAttribute('fill','none');
+  p.setAttribute('stroke',color);
+  p.setAttribute('stroke-width','1.5');
+  p.setAttribute('stroke-linecap','round');
+  p.setAttribute('stroke-linejoin','round');
+  marker.appendChild(p);
+  defs.appendChild(marker);
+  createdMarkers[id]=true;
+  return id;
+}
+
+function buildCols(){
+  const colsEl=document.getElementById('cols');
+  for(let s=0;s<6;s++){
+    const col=document.createElement('div');
+    col.className='col';col.id='col'+s;
+    let lastEl=null;
+    SUBS.filter(x=>x.s===s).forEach(sub=>{
+      if(sub.elective&&sub.elective!==lastEl){
+        const el=document.createElement('div');
+        el.className='elabel';el.textContent=sub.elective;
+        col.appendChild(el);lastEl=sub.elective;
+      }
+      const nd=document.createElement('div');
+      nd.className='node';
+      nd.textContent=sub.label;
+      nd.style.background='#f0f1f6';
+      nd.style.borderColor='#dde0ec';
+      nd.style.color='#555e7a';
+      nd.addEventListener('mouseenter',()=>{if(!connectMode&&!lockedLabel)highlightConnected(sub.label)});
+      nd.addEventListener('mouseleave',()=>{if(!connectMode&&!lockedLabel)clear()});
+      nd.addEventListener('click',()=>handleNodeClick(sub.label,nd));
+      col.appendChild(nd);
+      if(!nodeEls[sub.label])nodeEls[sub.label]=nd;
+    });
+    colsEl.appendChild(col);
+  }
+}
+
+function handleNodeClick(label,nd){
+  if(connectMode){
+    if(!selectedSource){
+      selectedSource=label;
+      nd.classList.add('source-selected');
+      setHint('Now click the destination node');
+    }else if(selectedSource===label){
+      nodeEls[selectedSource].classList.remove('source-selected');
+      selectedSource=null;
+      setHint('Click a source node to start a connection');
+    }else{
+      const color=document.getElementById('color-pick').value;
+      manualConnections.push({from:selectedSource,to:label,color});
+      nodeEls[selectedSource].classList.remove('source-selected');
+      selectedSource=null;
+      saveConnections();
+      drawArrows();
+      updateConnectionsList();
+      setHint('Connection added! Click another source node');
+    }
+  }else{
+    /* toggle lock: click to show full chain, click again to clear */
+    if(lockedLabel===label){
+      lockedLabel=null;
+      clear();
+    }else{
+      lockedLabel=label;
+      highlightChain(label);
+    }
+  }
+}
+
+function setHint(msg){
+  const h=document.getElementById('builder-hint');
+  if(h)h.textContent=msg;
+}
+
+function highlightConnected(label){
+  if(!manualConnections.length)return;
+  /* map each connected node to the arrow colors that touch it from hovered node */
+  const nodeColors={};
+  const connIndices=[];
+  manualConnections.forEach((conn,i)=>{
+    if(conn.from===label||conn.to===label){
+      connIndices.push(i);
+      [conn.from,conn.to].forEach(n=>{
+        if(!nodeColors[n])nodeColors[n]=[];
+        if(!nodeColors[n].includes(conn.color))nodeColors[n].push(conn.color);
+      });
+    }
+  });
+  if(!Object.keys(nodeColors).length)return;
+  document.querySelectorAll('.node').forEach(n=>{
+    const colors=nodeColors[n.textContent];
+    if(colors){
+      n.classList.remove('dimmed');
+      n.classList.add('lit');
+      n.style.setProperty('--hc',colors[0]);
+    }else{
+      n.classList.add('dimmed');
+      n.classList.remove('lit');
+    }
+  });
+  document.querySelectorAll('.arr-path').forEach((p,i)=>{
+    p.classList.toggle('dimmed',!connIndices.includes(i));
+    p.classList.toggle('lit',connIndices.includes(i));
+  });
+}
+function clear(){
+  document.querySelectorAll('.node').forEach(n=>{
+    n.classList.remove('dimmed','lit');
+    n.style.removeProperty('--hc');
+  });
+  document.querySelectorAll('.arr-path').forEach(p=>p.classList.remove('dimmed','lit'));
+}
+
+/* walk the full chain (all ancestors + descendants) from a node */
+function highlightChain(label){
+  if(!manualConnections.length)return;
+  const nodeColors={};
+  const connIndices=new Set();
+  /* walk backward (ancestors) */
+  function walkBack(lbl){
+    manualConnections.forEach((conn,i)=>{
+      if(conn.to===lbl&&!connIndices.has(i)){
+        connIndices.add(i);
+        [conn.from,conn.to].forEach(n=>{
+          if(!nodeColors[n])nodeColors[n]=[];
+          if(!nodeColors[n].includes(conn.color))nodeColors[n].push(conn.color);
+        });
+        walkBack(conn.from);
+      }
+    });
+  }
+  /* walk forward (descendants) */
+  function walkForward(lbl){
+    manualConnections.forEach((conn,i)=>{
+      if(conn.from===lbl&&!connIndices.has(i)){
+        connIndices.add(i);
+        [conn.from,conn.to].forEach(n=>{
+          if(!nodeColors[n])nodeColors[n]=[];
+          if(!nodeColors[n].includes(conn.color))nodeColors[n].push(conn.color);
+        });
+        walkForward(conn.to);
+      }
+    });
+  }
+  nodeColors[label]=nodeColors[label]||['#555e7a'];
+  walkBack(label);
+  walkForward(label);
+  if(Object.keys(nodeColors).length<=1&&!connIndices.size){lockedLabel=null;return;}
+  applyHighlight(nodeColors,connIndices);
+}
+
+function applyHighlight(nodeColors,connIndices){
+  document.querySelectorAll('.node').forEach(n=>{
+    const colors=nodeColors[n.textContent];
+    if(colors){
+      n.classList.remove('dimmed');
+      n.classList.add('lit');
+      n.style.setProperty('--hc',colors[0]);
+    }else{
+      n.classList.add('dimmed');
+      n.classList.remove('lit');
+    }
+  });
+  document.querySelectorAll('.arr-path').forEach((p,i)=>{
+    const isLit=connIndices instanceof Set?connIndices.has(i):connIndices.includes(i);
+    p.classList.toggle('dimmed',!isLit);
+    p.classList.toggle('lit',isLit);
+  });
+}
+
+function getBox(el){
+  const dr=document.getElementById('diagram').getBoundingClientRect();
+  const er=el.getBoundingClientRect();
+  return{
+    cy:er.top-dr.top+er.height/2,
+    right:er.left-dr.left+er.width,
+    left:er.left-dr.left,
+  };
+}
+
+function drawArrows(){
+  const svg=document.getElementById('svg-arrows');
+  svg.querySelectorAll('.arr-path').forEach(p=>p.remove());
+  /* group arrows by column-pair key so we can offset them */
+  const subSem={};
+  SUBS.forEach(s=>{subSem[s.label]=s.s;});
+  const pairBuckets={};
+  manualConnections.forEach((conn,i)=>{
+    const s1=subSem[conn.from]??-1,s2=subSem[conn.to]??-1;
+    const key=Math.min(s1,s2)+'-'+Math.max(s1,s2);
+    if(!pairBuckets[key])pairBuckets[key]=[];
+    pairBuckets[key].push(i);
+  });
+  manualConnections.forEach((conn,i)=>{
+    const fEl=nodeEls[conn.from];
+    const tEl=nodeEls[conn.to];
+    if(!fEl||!tEl)return;
+    const f=getBox(fEl);
+    const t=getBox(tEl);
+    const markerId=getOrCreateMarker(conn.color);
+    const x1=f.right+2,y1=f.cy;
+    const x2=t.left-2,y2=t.cy;
+    const gap=x2-x1;
+    /* compute offset to spread overlapping arrows */
+    const s1=subSem[conn.from]??-1,s2=subSem[conn.to]??-1;
+    const key=Math.min(s1,s2)+'-'+Math.max(s1,s2);
+    const bucket=pairBuckets[key]||[];
+    const idx=bucket.indexOf(i);
+    const total=bucket.length;
+    const spread=8;
+    const offset=(idx-(total-1)/2)*spread;
+    const cp1x=x1+gap*0.45,cp2x=x2-gap*0.45;
+    const cp1y=y1+offset,cp2y=y2+offset;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',`M${x1},${y1} C${cp1x},${cp1y} ${cp2x},${cp2y} ${x2},${y2}`);
+    path.setAttribute('stroke',conn.color);
+    path.setAttribute('marker-end',`url(#${markerId})`);
+    path.classList.add('arr-path');
+    svg.appendChild(path);
+  });
+}
+
+function updateConnectionsList(){
+  const list=document.getElementById('conn-list');
+  const count=document.getElementById('conn-count');
+  list.innerHTML='';
+  count.textContent=manualConnections.length;
+  if(!manualConnections.length){
+    list.innerHTML='<div class="conn-empty">No connections yet. Enable Connect Mode to start.</div>';
+    return;
+  }
+  manualConnections.forEach((conn,i)=>{
+    const item=document.createElement('div');
+    item.className='conn-item';
+    item.innerHTML=`<span class="conn-dot" style="background:${conn.color}"></span><span class="conn-text">${conn.from} → ${conn.to}</span><button class="conn-del" title="Remove">×</button>`;
+    item.querySelector('.conn-del').addEventListener('click',()=>{
+      manualConnections.splice(i,1);
+      saveConnections();
+      drawArrows();
+      updateConnectionsList();
+    });
+    list.appendChild(item);
+  });
+}
+
+/* ── builder controls ── */
+document.getElementById('btn-connect').addEventListener('click',()=>{
+  connectMode=!connectMode;
+  const btn=document.getElementById('btn-connect');
+  btn.textContent=connectMode?'● Connect Mode: ON':'Connect Mode: OFF';
+  btn.classList.toggle('active',connectMode);
+  document.getElementById('diagram').classList.toggle('connect-mode',connectMode);
+  if(!connectMode&&selectedSource){
+    nodeEls[selectedSource].classList.remove('source-selected');
+    selectedSource=null;
+  }
+  lockedLabel=null;
+  clear();
+  setHint(connectMode?'Click a source node to start a connection':'');
+});
+
+document.getElementById('btn-undo').addEventListener('click',()=>{
+  if(manualConnections.length){
+    manualConnections.pop();
+    saveConnections();
+    drawArrows();
+    updateConnectionsList();
+  }
+});
+
+document.getElementById('btn-clear').addEventListener('click',()=>{
+  if(!manualConnections.length)return;
+  if(confirm('Clear all connections?')){
+    manualConnections=[];
+    saveConnections();
+    drawArrows();
+    updateConnectionsList();
+  }
+});
+
+/* ── inject color-coordinated connections ── */
+const COLORED_CONNECTIONS=[
+  {from:'Basic Mathematics',to:'Applied Mathematics',color:'#5046c8'},
+  {from:'Basic Mathematics',to:'Basic Electrical & Electronics Eng',color:'#0284c7'},
+  {from:'Basic Physics',to:'Basic Electrical & Electronics Eng',color:'#0284c7'},
+  {from:'Basic Electrical & Electronics Eng',to:'Digital Techniques & Microprocessors',color:'#0284c7'},
+  {from:'Digital Techniques & Microprocessors',to:'Operating System',color:'#0284c7'},
+  {from:'Essentials of Computer',to:'Programming in C',color:'#0a7c5a'},
+  {from:'Programming in C',to:'Data Structures using Python',color:'#0a7c5a'},
+  {from:'Data Structures using Python',to:'Maths for Machine Learning',color:'#b45309'},
+  {from:'Data Structures using Python',to:'AI & ML Algorithms',color:'#b45309'},
+  {from:'Data Structures using Python',to:'Natural Language Processing',color:'#b45309'},
+  {from:'Yoga and Meditation',to:'Communicative Competence',color:'#065f46'},
+  {from:'Communicative Competence',to:'Social and Life Skills',color:'#065f46'},
+  {from:'Communicative Competence',to:'Environmental Education & Sustainability',color:'#065f46'},
+  {from:'Communicative Competence',to:'Essence of Indian Constitution',color:'#065f46'},
+  {from:'Social Leadership Dev Programme',to:'Social and Life Skills',color:'#065f46'},
+  {from:'Social Leadership Dev Programme',to:'Environmental Education & Sustainability',color:'#065f46'},
+  {from:'Social Leadership Dev Programme',to:'Communicative Competence',color:'#065f46'},
+  {from:'Social Leadership Dev Programme',to:'Essence of Indian Constitution',color:'#065f46'},
+  {from:'Linux Basics',to:'Operating System',color:'#0284c7'},
+  {from:'Computer Workshop Practices',to:'Data Comm & Computer Networks',color:'#0284c7'},
+  {from:'Web Page Designing',to:'UI/UX Design',color:'#be185d'},
+  {from:'Applied Mathematics',to:'Statistical Modelling for ML',color:'#5046c8'},
+  {from:'Data Storytelling & Visualization',to:'Natural Language Processing',color:'#c2500a'},
+  {from:'Data Storytelling & Visualization',to:'Data Warehousing & Data Mining',color:'#c2500a'},
+  {from:'Database Management System',to:'Advanced Database Management',color:'#c2500a'},
+  {from:'Essence of Indian Constitution',to:'Foundation of Peace',color:'#065f46'},
+  {from:'Essence of Indian Constitution',to:'Co-Creation',color:'#065f46'},
+  {from:'Internet of Things',to:'AI & ML Algorithms',color:'#b45309'},
+  {from:'UI/UX Design',to:'Capstone Project',color:'#be185d'},
+  {from:'AI & ML Algorithms',to:'Software Engineering',color:'#b91c1c'},
+  {from:'AI & ML Algorithms',to:'Capstone Project',color:'#b91c1c'},
+  {from:'AI & ML Algorithms',to:'Cloud Computing for Data Science',color:'#b45309'},
+  {from:'AI & ML Algorithms',to:'Advanced Machine Learning',color:'#b45309'},
+  {from:'AI & ML Algorithms',to:'Image Processing',color:'#b45309'},
+  {from:'Natural Language Processing',to:'Capstone Project',color:'#b45309'},
+  {from:'Advanced Database Management',to:'Capstone Project',color:'#c2500a'},
+  {from:'Data Warehousing & Data Mining',to:'Capstone Project',color:'#c2500a'},
+  {from:'Capstone Project',to:'Entrepreneurship & Startups',color:'#b91c1c'},
+  {from:'Capstone Project',to:'Management',color:'#b91c1c'},
+  {from:'Capstone Project',to:'Internship',color:'#b91c1c'},
+  {from:'Capstone Project',to:'Project Seminar',color:'#b91c1c'},
+  {from:'Software Engineering',to:'Management',color:'#b91c1c'},
+  {from:'Software Engineering',to:'Internship',color:'#b91c1c'},
+  {from:'Mobile App Development',to:'Capstone Project',color:'#b91c1c'},
+  {from:'Advanced Machine Learning',to:'Internship',color:'#b45309'},
+];
+manualConnections=COLORED_CONNECTIONS;
+saveConnections();
+
+buildCols();
+updateConnectionsList();
+requestAnimationFrame(()=>setTimeout(drawArrows,150));
+window.addEventListener('resize',()=>setTimeout(drawArrows,100));
+</script>
