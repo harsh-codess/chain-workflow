@@ -16,7 +16,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 40p
 .diagram{position:relative}
 .cols{display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(10px,2vw,28px);position:relative;z-index:2}
 .col{display:flex;flex-direction:column;gap:clamp(5px,0.8vw,10px)}
-.node{border-radius:6px;padding:clamp(4px,0.6vw,8px) clamp(4px,0.5vw,7px);font-size:clamp(8px,0.85vw,11px);line-height:1.35;text-align:center;cursor:pointer;transition:opacity .18s,transform .18s,box-shadow .18s;border:1.5px solid transparent;position:relative;z-index:2;user-select:none;word-break:break-word}
+.node{border-radius:6px;padding:clamp(4px,0.6vw,8px) clamp(4px,0.5vw,7px);font-size:clamp(8px,0.85vw,11px);font-weight:600;line-height:1.35;text-align:center;cursor:pointer;transition:opacity .18s,transform .18s,box-shadow .18s;border:1.5px solid transparent;position:relative;z-index:2;user-select:none;word-break:break-word}
 .node.dimmed{opacity:.1}
 .node.lit{opacity:1;transform:scale(1.04);box-shadow:0 0 0 2.5px var(--hc,#b0b5cc),0 4px 12px rgba(0,0,0,.12);border-color:var(--hc,#dde0ec);color:var(--hc,#555e7a);background:color-mix(in srgb,var(--hc,#f0f1f6) 12%,white)}
 .elabel{font-size:clamp(7px,0.7vw,9px);font-weight:500;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:3px 0 1px;color:#9ca3af}
