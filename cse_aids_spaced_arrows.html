@@ -61,6 +61,7 @@ svg.arrows{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:
   </div>
   <div class="builder-bar">
     <button class="btn-connect" id="btn-connect">Connect Mode: OFF</button>
+    <button class="btn-small" id="btn-quick">⚡ Quick Highlight: OFF</button>
     <label class="color-label">Arrow color <input type="color" id="color-pick" value="#000000"></label>
     <button class="btn-small" id="btn-undo">↩ Undo last</button>
     <button class="btn-small" id="btn-clear">⊘ Clear all</button>
@@ -145,6 +146,7 @@ let manualConnections=JSON.parse(localStorage.getItem('cse_connections')||'[]');
 let connectMode=false;
 let selectedSource=null;
 let lockedLabel=null;
+let quickMode=false;
 const createdMarkers={};
 
 function saveConnections(){
@@ -194,8 +196,16 @@ function buildCols(){
       nd.style.background='#f0f1f6';
       nd.style.borderColor='#dde0ec';
       nd.style.color='#555e7a';
-      nd.addEventListener('mouseenter',()=>{if(!connectMode&&!lockedLabel)highlightConnected(sub.label)});
-      nd.addEventListener('mouseleave',()=>{if(!connectMode&&!lockedLabel)clear()});
+      nd.addEventListener('mouseenter',()=>{
+        if(connectMode)return;
+        if(quickMode)highlightChain(sub.label);
+        else if(!lockedLabel)highlightConnected(sub.label);
+      });
+      nd.addEventListener('mouseleave',()=>{
+        if(connectMode)return;
+        if(quickMode)clear();
+        else if(!lockedLabel)clear();
+      });
       nd.addEventListener('click',()=>handleNodeClick(sub.label,nd));
       col.appendChild(nd);
       if(!nodeEls[sub.label])nodeEls[sub.label]=nd;
@@ -225,6 +235,7 @@ function handleNodeClick(label,nd){
       setHint('Connection added! Click another source node');
     }
   }else{
+    if(quickMode)return; /* in quick mode hover does it, click does nothing */
     /* toggle lock: click to show full chain, click again to clear */
     if(lockedLabel===label){
       lockedLabel=null;
@@ -426,6 +437,16 @@ document.getElementById('btn-connect').addEventListener('click',()=>{
   lockedLabel=null;
   clear();
   setHint(connectMode?'Click a source node to start a connection':'');
+});
+
+document.getElementById('btn-quick').addEventListener('click',()=>{
+  quickMode=!quickMode;
+  const btn=document.getElementById('btn-quick');
+  btn.textContent=quickMode?'⚡ Quick Highlight: ON':'⚡ Quick Highlight: OFF';
+  btn.style.background=quickMode?'#f59e0b':'';
+  btn.style.borderColor=quickMode?'#f59e0b':'';
+  btn.style.color=quickMode?'#fff':'';
+  if(quickMode){lockedLabel=null;clear();}
 });
 
 document.getElementById('btn-undo').addEventListener('click',()=>{
