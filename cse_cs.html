@@ -43,7 +43,6 @@ svg.arrows{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:
 .conn-del:hover{color:#e11d48}
 .conn-empty{font-size:10.5px;color:#b0b5cc;padding:6px 4px;font-style:italic}
 .builder-hint{font-size:10px;color:#9ca3af;margin-left:4px}
-/* large screen / presentation mode */
 @media(min-width:1600px){
   body{padding:32px 24px 60px}
   .node{font-size:clamp(10px,0.75vw,13px)}
@@ -60,8 +59,8 @@ svg.arrows{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:
 
 <div class="page-title">CSE — Curriculum Workflow</div>
 <div class="nav-bar">
-  <span class="nav-btn active">AI &amp; Data Science</span>
-  <a class="nav-btn" href="cse_cs.html">Computer Science</a>
+  <a class="nav-btn" href="index.html">AI &amp; Data Science</a>
+  <span class="nav-btn active">Computer Science</span>
 </div>
 <div class="wrap">
   <div class="year-headers">
@@ -92,75 +91,68 @@ svg.arrows{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:
 </div>
 
 <script>
-/* ── data ── */
-const CHAINS=[
-  {id:'math',  name:'Mathematics',           color:'#5046c8'},
-  {id:'prog',  name:'Programming',           color:'#0a7c5a'},
-  {id:'infra', name:'Systems & infra',       color:'#0284c7'},
-  {id:'data',  name:'Data & databases',      color:'#c2500a'},
-  {id:'web',   name:'Web & design',          color:'#be185d'},
-  {id:'ml',    name:'ML & AI',               color:'#a16207'},
-  {id:'ds',    name:'Data science pipeline', color:'#6d28d9'},
-  {id:'soft',  name:'Software engineering',  color:'#b91c1c'},
-  {id:'prof',  name:'Professional dev',      color:'#065f46'},
-];
-const CM={};
-CHAINS.forEach(c=>CM[c.id]=c);
-
+/* ── CS subjects ── */
 const SUBS=[
-  {s:0,label:'Basic Mathematics',chain:'math'},
-  {s:0,label:'Basic Physics',chain:'infra'},
-  {s:0,label:'Essentials of Computer',chain:'prog'},
-  {s:0,label:'Yoga and Meditation',chain:null},
-  {s:0,label:'Graphics for Engineers',chain:null},
-  {s:0,label:'Web Page Designing',chain:'web'},
-  {s:0,label:'Computer Workshop Practices',chain:null},
-  {s:0,label:'Linux Basics',chain:null},
-  {s:0,label:'Social Leadership Dev Programme',chain:'prof'},
-  {s:1,label:'Applied Mathematics',chain:'math'},
-  {s:1,label:'Basic Electrical & Electronics Eng',chain:'infra'},
-  {s:1,label:'Programming in C',chain:'prog'},
-  {s:1,label:'Communicative Competence',chain:'prof'},
-  {s:1,label:'Data Comm & Computer Networks',chain:'data'},
-  {s:1,label:'Social and Life Skills',chain:'prof'},
-  {s:1,label:'Environmental Education & Sustainability',chain:null},
-  {s:1,label:'Sports',chain:null},
-  {s:2,label:'Database Management System',chain:'data'},
-  {s:2,label:'Digital Techniques & Microprocessors',chain:'infra'},
-  {s:2,label:'Data Structures using Python',chain:'prog'},
-  {s:2,label:'Statistical Modelling for ML',chain:'ml'},
-  {s:2,label:'Data Storytelling & Visualization',chain:'ds'},
-  {s:2,label:'Essence of Indian Constitution',chain:null},
-  {s:2,label:'Internet of Things',chain:null},
-  {s:3,label:'UI/UX Design',chain:'web'},
-  {s:3,label:'Java Programming',chain:'prog'},
-  {s:3,label:'Operating System',chain:'infra'},
-  {s:3,label:'Maths for Machine Learning',chain:'math'},
-  {s:3,label:'AI & ML Algorithms',chain:'ml'},
-  {s:3,label:'Natural Language Processing',chain:'ml',elective:'Elective 1'},
-  {s:3,label:'Advanced Database Management',chain:'data'},
-  {s:3,label:'Data Warehousing & Data Mining',chain:'ds'},
-  {s:3,label:'Discrete Math & Graph Theory',chain:null},
-  {s:3,label:'Co-Creation',chain:null},
-  {s:3,label:'Foundation of Peace',chain:'prof'},
-  {s:4,label:'Capstone Project',chain:'soft'},
-  {s:4,label:'Software Engineering',chain:'soft'},
-  {s:4,label:'Cloud Computing for Data Science',chain:'infra'},
-  {s:4,label:'Mobile App Development',chain:'infra'},
-  {s:4,label:'Big Data Analytics',chain:'ds'},
-  {s:4,label:'Advanced Machine Learning',chain:'ml',elective:'Elective 2'},
-  {s:4,label:'Image Processing',chain:null,elective:'Elective 2'},
-  {s:4,label:'Business Intelligence',chain:null,elective:'Elective 2'},
-  {s:5,label:'Entrepreneurship & Startups',chain:'prof'},
-  {s:5,label:'Management',chain:null},
-  {s:5,label:'Internship',chain:null},
-  {s:5,label:'Project Seminar',chain:null},
+  /* Semester 1 */
+  {s:0,label:'Basic Mathematics'},
+  {s:0,label:'Basic Physics'},
+  {s:0,label:'Essentials of Computer'},
+  {s:0,label:'Yoga and Meditation'},
+  {s:0,label:'Graphics for Engineers'},
+  {s:0,label:'Web Page Designing'},
+  {s:0,label:'Computer Workshop Practices'},
+  {s:0,label:'Linux Basics'},
+  {s:0,label:'Social Leadership Dev Programme'},
+  /* Semester 2 */
+  {s:1,label:'Applied Mathematics'},
+  {s:1,label:'Basic Electrical & Electronics Eng'},
+  {s:1,label:'Programming in C'},
+  {s:1,label:'Communicative Competence'},
+  {s:1,label:'Data Comm & Computer Networks'},
+  {s:1,label:'Social and Life Skills'},
+  {s:1,label:'Environmental Education & Sustainability'},
+  {s:1,label:'Sports'},
+  /* Semester 3 */
+  {s:2,label:'Operating System'},
+  {s:2,label:'Digital Techniques & Microprocessors'},
+  {s:2,label:'Data Structure Using C'},
+  {s:2,label:'Object Oriented Programming Using C++'},
+  {s:2,label:'Basics of JavaScript'},
+  {s:2,label:'Essence of Indian Constitution'},
+  {s:2,label:'Linear Algebra & Differential Calculus'},
+  /* Semester 4 */
+  {s:3,label:'Network and Information Security'},
+  {s:3,label:'Java Programming'},
+  {s:3,label:'Database Management System'},
+  {s:3,label:'Python Programming'},
+  {s:3,label:'Client Side Scripting'},
+  {s:3,label:'Computer Graphics'},
+  {s:3,label:'Advanced Computer Network',elective:'Elective 1'},
+  {s:3,label:'Internet of Things',elective:'Elective 1'},
+  {s:3,label:'Machine Learning',elective:'Elective 1'},
+  {s:3,label:'Discrete Math & Graph Theory'},
+  {s:3,label:'Co-Creation'},
+  {s:3,label:'Foundation of Peace'},
+  /* Semester 5 */
+  {s:4,label:'Capstone Project'},
+  {s:4,label:'UI/UX Design'},
+  {s:4,label:'Cloud Computing'},
+  {s:4,label:'Mobile App Development'},
+  {s:4,label:'Software Engineering'},
+  {s:4,label:'Cyber Security',elective:'Elective 2'},
+  {s:4,label:'Data Analytics',elective:'Elective 2'},
+  {s:4,label:'Digital Forensic and Hacking',elective:'Elective 2'},
+  /* Semester 6 */
+  {s:5,label:'Entrepreneurship & Startups'},
+  {s:5,label:'Management'},
+  {s:5,label:'Internship'},
+  {s:5,label:'Project Seminar'},
 ];
 
 const nodeEls={};
 
 /* ── manual connection state ── */
-let manualConnections=JSON.parse(localStorage.getItem('cse_connections')||'[]');
+let manualConnections=JSON.parse(localStorage.getItem('cs_connections')||'[]');
 let connectMode=false;
 let selectedSource=null;
 let lockedLabel=null;
@@ -168,7 +160,7 @@ let quickMode=false;
 const createdMarkers={};
 
 function saveConnections(){
-  localStorage.setItem('cse_connections',JSON.stringify(manualConnections));
+  localStorage.setItem('cs_connections',JSON.stringify(manualConnections));
 }
 
 function getOrCreateMarker(color){
@@ -253,8 +245,7 @@ function handleNodeClick(label,nd){
       setHint('Connection added! Click another source node');
     }
   }else{
-    if(quickMode)return; /* in quick mode hover does it, click does nothing */
-    /* toggle lock: click to show full chain, click again to clear */
+    if(quickMode)return;
     if(lockedLabel===label){
       lockedLabel=null;
       clear();
@@ -272,7 +263,6 @@ function setHint(msg){
 
 function highlightConnected(label){
   if(!manualConnections.length)return;
-  /* map each connected node to the arrow colors that touch it from hovered node */
   const nodeColors={};
   const connIndices=[];
   manualConnections.forEach((conn,i)=>{
@@ -301,6 +291,7 @@ function highlightConnected(label){
     p.classList.toggle('lit',connIndices.includes(i));
   });
 }
+
 function clear(){
   document.querySelectorAll('.node').forEach(n=>{
     n.classList.remove('dimmed','lit');
@@ -309,12 +300,10 @@ function clear(){
   document.querySelectorAll('.arr-path').forEach(p=>p.classList.remove('dimmed','lit'));
 }
 
-/* walk the full chain (all ancestors + descendants) from a node */
 function highlightChain(label){
   if(!manualConnections.length)return;
   const nodeColors={};
   const connIndices=new Set();
-  /* walk backward (ancestors) */
   function walkBack(lbl){
     manualConnections.forEach((conn,i)=>{
       if(conn.to===lbl&&!connIndices.has(i)){
@@ -327,7 +316,6 @@ function highlightChain(label){
       }
     });
   }
-  /* walk forward (descendants) */
   function walkForward(lbl){
     manualConnections.forEach((conn,i)=>{
       if(conn.from===lbl&&!connIndices.has(i)){
@@ -379,7 +367,6 @@ function getBox(el){
 function drawArrows(){
   const svg=document.getElementById('svg-arrows');
   svg.querySelectorAll('.arr-path').forEach(p=>p.remove());
-  /* group arrows by column-pair key so we can offset them */
   const subSem={};
   SUBS.forEach(s=>{subSem[s.label]=s.s;});
   const pairBuckets={};
@@ -399,7 +386,6 @@ function drawArrows(){
     const x1=f.right+2,y1=f.cy;
     const x2=t.left-2,y2=t.cy;
     const gap=x2-x1;
-    /* compute offset to spread overlapping arrows */
     const s1=subSem[conn.from]??-1,s2=subSem[conn.to]??-1;
     const key=Math.min(s1,s2)+'-'+Math.max(s1,s2);
     const bucket=pairBuckets[key]||[];
@@ -488,51 +474,46 @@ document.getElementById('btn-clear').addEventListener('click',()=>{
 
 /* ── inject color-coordinated connections ── */
 const COLORED_CONNECTIONS=[
+  /* Mathematics — indigo */
   {from:'Basic Mathematics',to:'Applied Mathematics',color:'#5046c8'},
-  {from:'Basic Mathematics',to:'Basic Electrical & Electronics Eng',color:'#0284c7'},
+  {from:'Applied Mathematics',to:'Linear Algebra & Differential Calculus',color:'#5046c8'},
+  {from:'Applied Mathematics',to:'Digital Techniques & Microprocessors',color:'#5046c8'},
+  {from:'Linear Algebra & Differential Calculus',to:'Discrete Math & Graph Theory',color:'#5046c8'},
+  /* Systems & Infra — blue */
   {from:'Basic Physics',to:'Basic Electrical & Electronics Eng',color:'#0284c7'},
   {from:'Basic Electrical & Electronics Eng',to:'Digital Techniques & Microprocessors',color:'#0284c7'},
-  {from:'Digital Techniques & Microprocessors',to:'Operating System',color:'#0284c7'},
-  {from:'Essentials of Computer',to:'Programming in C',color:'#0a7c5a'},
-  {from:'Programming in C',to:'Data Structures using Python',color:'#0a7c5a'},
-  {from:'Data Structures using Python',to:'Maths for Machine Learning',color:'#b45309'},
-  {from:'Data Structures using Python',to:'AI & ML Algorithms',color:'#b45309'},
-  {from:'Data Structures using Python',to:'Natural Language Processing',color:'#b45309'},
-  {from:'Yoga and Meditation',to:'Communicative Competence',color:'#065f46'},
-  {from:'Communicative Competence',to:'Social and Life Skills',color:'#065f46'},
-  {from:'Communicative Competence',to:'Environmental Education & Sustainability',color:'#065f46'},
-  {from:'Communicative Competence',to:'Essence of Indian Constitution',color:'#065f46'},
-  {from:'Social Leadership Dev Programme',to:'Social and Life Skills',color:'#065f46'},
-  {from:'Social Leadership Dev Programme',to:'Environmental Education & Sustainability',color:'#065f46'},
-  {from:'Social Leadership Dev Programme',to:'Communicative Competence',color:'#065f46'},
-  {from:'Social Leadership Dev Programme',to:'Essence of Indian Constitution',color:'#065f46'},
-  {from:'Linux Basics',to:'Operating System',color:'#0284c7'},
   {from:'Computer Workshop Practices',to:'Data Comm & Computer Networks',color:'#0284c7'},
-  {from:'Web Page Designing',to:'UI/UX Design',color:'#be185d'},
-  {from:'Applied Mathematics',to:'Statistical Modelling for ML',color:'#5046c8'},
-  {from:'Data Storytelling & Visualization',to:'Natural Language Processing',color:'#c2500a'},
-  {from:'Data Storytelling & Visualization',to:'Data Warehousing & Data Mining',color:'#c2500a'},
-  {from:'Database Management System',to:'Advanced Database Management',color:'#c2500a'},
-  {from:'Essence of Indian Constitution',to:'Foundation of Peace',color:'#065f46'},
-  {from:'Essence of Indian Constitution',to:'Co-Creation',color:'#065f46'},
-  {from:'Internet of Things',to:'AI & ML Algorithms',color:'#b45309'},
-  {from:'UI/UX Design',to:'Capstone Project',color:'#be185d'},
-  {from:'AI & ML Algorithms',to:'Software Engineering',color:'#b91c1c'},
-  {from:'AI & ML Algorithms',to:'Capstone Project',color:'#b91c1c'},
-  {from:'AI & ML Algorithms',to:'Cloud Computing for Data Science',color:'#b45309'},
-  {from:'AI & ML Algorithms',to:'Advanced Machine Learning',color:'#b45309'},
-  {from:'AI & ML Algorithms',to:'Image Processing',color:'#b45309'},
-  {from:'Natural Language Processing',to:'Capstone Project',color:'#b45309'},
-  {from:'Advanced Database Management',to:'Capstone Project',color:'#c2500a'},
-  {from:'Data Warehousing & Data Mining',to:'Capstone Project',color:'#c2500a'},
-  {from:'Capstone Project',to:'Entrepreneurship & Startups',color:'#b91c1c'},
-  {from:'Capstone Project',to:'Management',color:'#b91c1c'},
-  {from:'Capstone Project',to:'Internship',color:'#b91c1c'},
-  {from:'Capstone Project',to:'Project Seminar',color:'#b91c1c'},
+  {from:'Linux Basics',to:'Operating System',color:'#0284c7'},
+  {from:'Data Comm & Computer Networks',to:'Internet of Things',color:'#0284c7'},
+  {from:'Operating System',to:'Network and Information Security',color:'#0284c7'},
+  {from:'Network and Information Security',to:'Cyber Security',color:'#0284c7'},
+  {from:'Network and Information Security',to:'Digital Forensic and Hacking',color:'#0284c7'},
+  /* Programming — green */
+  {from:'Essentials of Computer',to:'Programming in C',color:'#0a7c5a'},
+  {from:'Computer Workshop Practices',to:'Programming in C',color:'#0a7c5a'},
+  {from:'Programming in C',to:'Data Structure Using C',color:'#0a7c5a'},
+  {from:'Programming in C',to:'Object Oriented Programming Using C++',color:'#0a7c5a'},
+  {from:'Object Oriented Programming Using C++',to:'Java Programming',color:'#0a7c5a'},
+  {from:'Object Oriented Programming Using C++',to:'Computer Graphics',color:'#0a7c5a'},
+  /* Web & Design — pink */
+  {from:'Web Page Designing',to:'Basics of JavaScript',color:'#be185d'},
+  {from:'Basics of JavaScript',to:'Client Side Scripting',color:'#be185d'},
+  /* ML & AI — amber */
+  {from:'Python Programming',to:'Machine Learning',color:'#b45309'},
+  {from:'Machine Learning',to:'Cloud Computing',color:'#b45309'},
+  {from:'Machine Learning',to:'Data Analytics',color:'#b45309'},
+  /* Professional Dev — teal */
+  {from:'Yoga and Meditation',to:'Communicative Competence',color:'#065f46'},
+  {from:'Social Leadership Dev Programme',to:'Communicative Competence',color:'#065f46'},
+  {from:'Social Leadership Dev Programme',to:'Environmental Education & Sustainability',color:'#065f46'},
+  {from:'Social and Life Skills',to:'Social Leadership Dev Programme',color:'#065f46'},
+  /* Software & Projects — red */
+  {from:'Java Programming',to:'Capstone Project',color:'#b91c1c'},
+  {from:'Database Management System',to:'Capstone Project',color:'#b91c1c'},
+  {from:'Software Engineering',to:'Capstone Project',color:'#b91c1c'},
+  {from:'Software Engineering',to:'Entrepreneurship & Startups',color:'#b91c1c'},
   {from:'Software Engineering',to:'Management',color:'#b91c1c'},
   {from:'Software Engineering',to:'Internship',color:'#b91c1c'},
-  {from:'Mobile App Development',to:'Capstone Project',color:'#b91c1c'},
-  {from:'Advanced Machine Learning',to:'Internship',color:'#b45309'},
 ];
 manualConnections=COLORED_CONNECTIONS;
 saveConnections();
